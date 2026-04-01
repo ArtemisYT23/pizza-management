@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Domain\Contracts\IngredientRepositoryInterface;
+use App\Domain\Contracts\OrderRepositoryInterface;
+use App\Domain\Contracts\PizzaRepositoryInterface;
+use App\Infrastructure\Repositories\EloquentIngredientRepository;
+use App\Infrastructure\Repositories\EloquentOrderRepository;
+use App\Infrastructure\Repositories\EloquentPizzaRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -11,8 +17,14 @@ use Illuminate\Validation\Rules\Password;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * @var array<class-string, class-string>
      */
+    public array $bindings = [
+        IngredientRepositoryInterface::class => EloquentIngredientRepository::class,
+        PizzaRepositoryInterface::class => EloquentPizzaRepository::class,
+        OrderRepositoryInterface::class => EloquentOrderRepository::class,
+    ];
+
     public function register(): void
     {
         //
