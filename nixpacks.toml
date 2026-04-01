@@ -4,7 +4,6 @@ NIXPACKS_NODE_VERSION = "22"
 
 [phases.install]
 cmds = [
-    "mkdir -p /etc/nginx/sites-enabled",
     "composer install --no-dev --optimize-autoloader",
     "npm ci",
 ]
@@ -16,4 +15,8 @@ cmds = [
     "php artisan view:cache",
 ]
 
-# Sin [start]: el comando de arranque lo defines en Railway por servicio (web vs worker).
+# CMD por defecto de la imagen: servidor PHP integrado (no nginx: evita /var/log/nginx en contenedores mínimos).
+# En Railway, el servicio WEB puede sustituir esto en Settings → Deploy por migrate + optimize + este mismo serve.
+# El WORKER debe usar solo: php artisan queue:work database --sleep=3 --tries=3
+[start]
+cmd = "php artisan serve --host=0.0.0.0 --port=$PORT"
