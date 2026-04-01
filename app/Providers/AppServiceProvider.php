@@ -15,12 +15,15 @@ use App\Infrastructure\Repositories\EloquentPizzaRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use InvalidArgumentException;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
 use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
 use Laravel\Fortify\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
+use Symfony\Component\Mailer\Transport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -47,6 +50,20 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        Mail::extend('brevo-api', function (array $config) {
+            $key = $config['key'] ?? '';
+
+            if ($key === '') {
+                throw new InvalidArgumentException(
+                    'Define BREVO_API_KEY para el mailer brevo-api (clave xkeysib-… en Brevo → API keys).',
+                );
+            }
+
+            return Transport::fromDsn(
+                'brevo+api://'.rawurlencode($key).'@default',
+            );
+        });
     }
 
     /**
