@@ -4,10 +4,13 @@ namespace Tests\Unit\Actions\Order;
 
 use App\Application\Actions\Order\PlaceOrderAction;
 use App\Application\DTOs\OrderData;
+use App\Mail\OrderPlacedMail;
+use App\Models\Ingredient;
 use App\Models\Pizza;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class PlaceOrderActionTest extends TestCase
@@ -16,6 +19,8 @@ class PlaceOrderActionTest extends TestCase
 
     public function test_places_order_successfully(): void
     {
+        Mail::fake();
+
         $user = User::factory()->create();
         $pizza = Pizza::factory()->create();
 
@@ -32,6 +37,8 @@ class PlaceOrderActionTest extends TestCase
         $this->assertNotNull($order->ordered_at);
         $this->assertTrue($order->relationLoaded('user'));
         $this->assertTrue($order->relationLoaded('pizza'));
+
+        Mail::assertSent(OrderPlacedMail::class);
     }
 
     public function test_fails_with_invalid_pizza(): void
@@ -49,10 +56,12 @@ class PlaceOrderActionTest extends TestCase
 
     public function test_order_has_pizza_with_ingredients(): void
     {
+        Mail::fake();
+
         $user = User::factory()->create();
         $pizza = Pizza::factory()->create();
         $pizza->ingredients()->attach(
-            \App\Models\Ingredient::factory()->count(3)->create()->pluck('id')
+            Ingredient::factory()->count(3)->create()->pluck('id')
         );
 
         $action = app(PlaceOrderAction::class);

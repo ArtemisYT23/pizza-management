@@ -5,12 +5,15 @@ namespace App\Providers;
 use App\Domain\Contracts\IngredientRepositoryInterface;
 use App\Domain\Contracts\OrderRepositoryInterface;
 use App\Domain\Contracts\PizzaRepositoryInterface;
+use App\Events\OrderPlaced;
 use App\Infrastructure\Repositories\EloquentIngredientRepository;
 use App\Infrastructure\Repositories\EloquentOrderRepository;
 use App\Infrastructure\Repositories\EloquentPizzaRepository;
+use App\Listeners\DispatchOrderConfirmationEmail;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -36,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+
+        Event::listen(OrderPlaced::class, DispatchOrderConfirmationEmail::class);
     }
 
     /**

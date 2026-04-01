@@ -5,6 +5,7 @@ namespace App\Application\Actions\Order;
 use App\Application\DTOs\OrderData;
 use App\Domain\Contracts\OrderRepositoryInterface;
 use App\Domain\Contracts\PizzaRepositoryInterface;
+use App\Events\OrderPlaced;
 use App\Models\Order;
 
 final readonly class PlaceOrderAction
@@ -16,12 +17,11 @@ final readonly class PlaceOrderAction
 
     public function execute(OrderData $data): Order
     {
-        // Validate the pizza exists before placing the order
         $this->pizzaRepository->findOrFail($data->pizzaId);
 
         $order = $this->orderRepository->create($data);
 
-        // TODO: dispatch OrderPlaced event here (next step)
+        event(new OrderPlaced($order));
 
         return $order;
     }

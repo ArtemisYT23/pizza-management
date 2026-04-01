@@ -2,11 +2,15 @@
 
 namespace Tests\Feature\Api;
 
+use App\Jobs\SendOrderConfirmationEmailJob;
+use App\Mail\OrderPlacedMail;
 use App\Models\Ingredient;
 use App\Models\Order;
 use App\Models\Pizza;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class OrderApiTest extends TestCase
@@ -56,6 +60,8 @@ class OrderApiTest extends TestCase
 
     public function test_can_place_order(): void
     {
+        Mail::fake();
+
         $pizza = Pizza::factory()->create();
         $pizza->ingredients()->attach(
             Ingredient::factory()->count(2)->create()->pluck('id')
@@ -73,6 +79,28 @@ class OrderApiTest extends TestCase
             'user_id' => $this->user->id,
             'pizza_id' => $pizza->id,
         ]);
+
+        $user = $this->user;
+        Mail::assertSent(OrderPlacedMail::class, function (OrderPlacedMail $mail) use ($pizza, $user) {
+            return $mail->order->pizza_id === $pizza->id
+                && $mail->hasTo($user->email);
+        });
+    }
+
+    public function test_placing_order_dispatches_confirmation_email_job(): void
+    {
+        Queue::fake();
+
+        $pizza = Pizza::factory()->create();
+        $user = $this->user;
+
+        $this->actingAs($this->user)
+            ->postJson('/api/orders', ['pizza_id' => $pizza->id])
+            ->assertCreated();
+
+        Queue::assertPushed(SendOrderConfirmationEmailJob::class, function (SendOrderConfirmationEmailJob $job) use ($user) {
+            return Order::where('id', $job->orderId)->where('user_id', $user->id)->exists();
+        });
     }
 
     public function test_place_order_validates_pizza_exists(): void

@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-vue-next';
+import {
+    BookOpen,
+    ChefHat,
+    Flame,
+    FolderGit2,
+    LayoutGrid,
+    Pizza,
+    Receipt,
+} from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -14,7 +22,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { dashboard, menu } from '@/routes';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -22,6 +30,26 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'Carta',
+        href: menu(),
+        icon: Pizza,
+    },
+    {
+        title: 'Ingredientes',
+        href: '/admin/ingredients',
+        icon: ChefHat,
+    },
+    {
+        title: 'Pizzas',
+        href: '/admin/pizzas',
+        icon: Flame,
+    },
+    {
+        title: 'Pedidos',
+        href: '/admin/orders',
+        icon: Receipt,
     },
 ];
 
