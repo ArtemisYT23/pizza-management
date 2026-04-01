@@ -89,6 +89,17 @@ return [
             ),
         ],
 
+        /*
+        | Brevo por API HTTPS (https://developers.brevo.com/reference/sendtransacemail)
+        | Úsalo en Railway u otros PaaS que bloquean SMTP (587): el worker no se queda colgado.
+        | Clave API (xkeysib-... en Brevo → SMTP & API → API keys), no la clave SMTP (xsmtpsib-...).
+        | En .env: MAIL_MAILER=brevo-api y BREVO_API_KEY=...
+        */
+        'brevo-api' => [
+            'transport' => 'brevo-api',
+            'key' => env('BREVO_API_KEY'),
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],
