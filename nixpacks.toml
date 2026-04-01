@@ -16,5 +16,4 @@ cmds = [
     "php artisan view:cache",
 ]
 
-[start]
-cmd = "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
+# Sin [start]: el comando de arranque lo defines en Railway por servicio (web vs worker).
