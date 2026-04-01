@@ -21,6 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Railway / HTTPS detrás de proxy: evita URLs http:// en Vite y mixed content.
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
             'redirect_admin_customer' => RedirectAdminFromCustomerPages::class,
