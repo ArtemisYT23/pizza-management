@@ -1,0 +1,95 @@
+<?php
+
+namespace Tests\Feature\Api;
+
+use App\Models\Ingredient;
+use App\Models\Order;
+use App\Models\Pizza;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class OrderApiTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private User $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+    }
+
+    public function test_guest_cannot_list_orders(): void
+    {
+        $this->getJson('/api/orders')->assertUnauthorized();
+    }
+
+    public function test_guest_cannot_place_order(): void
+    {
+        $this->postJson('/api/orders', [])->assertUnauthorized();
+    }
+
+    public function test_can_list_orders(): void
+    {
+        Order::factory()->count(3)->create();
+
+        $this->actingAs($this->user)
+            ->getJson('/api/orders')
+            ->assertOk()
+            ->assertJsonCount(3, 'data');
+    }
+
+    public function test_orders_include_user_and_pizza(): void
+    {
+        Order::factory()->create(['user_id' => $this->user->id]);
+
+        $response = $this->actingAs($this->user)
+            ->getJson('/api/orders')
+            ->assertOk();
+
+        $order = $response->json('data.0');
+        $this->assertArrayHasKey('user', $order);
+        $this->assertArrayHasKey('pizza', $order);
+    }
+
+    public function test_can_place_order(): void
+    {
+        $pizza = Pizza::factory()->create();
+        $pizza->ingredients()->attach(
+            Ingredient::factory()->count(2)->create()->pluck('id')
+        );
+
+        $this->actingAs($this->user)
+            ->postJson('/api/orders', [
+                'pizza_id' => $pizza->id,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.user.id', $this->user->id)
+            ->assertJsonPath('data.pizza.id', $pizza->id);
+
+        $this->assertDatabaseHas('orders', [
+            'user_id' => $this->user->id,
+            'pizza_id' => $pizza->id,
+        ]);
+    }
+
+    public function test_place_order_validates_pizza_exists(): void
+    {
+        $this->actingAs($this->user)
+            ->postJson('/api/orders', [
+                'pizza_id' => 'non-existent-uuid',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['pizza_id']);
+    }
+
+    public function test_place_order_requires_pizza_id(): void
+    {
+        $this->actingAs($this->user)
+            ->postJson('/api/orders', [])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['pizza_id']);
+    }
+}
