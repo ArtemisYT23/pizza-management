@@ -29,9 +29,47 @@ class PizzaApiTest extends TestCase
     {
         Pizza::factory()->count(3)->create();
 
-        $this->getJson('/api/pizzas')
+        $this->getJson('/api/pizzas?per_page=50')
             ->assertOk()
-            ->assertJsonCount(3, 'data');
+            ->assertJsonStructure([
+                'data',
+                'links' => ['first', 'last', 'prev', 'next'],
+                'meta' => [
+                    'current_page',
+                    'last_page',
+                    'per_page',
+                    'total',
+                ],
+            ])
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('meta.total', 3)
+            ->assertJsonPath('meta.current_page', 1);
+    }
+
+    public function test_list_pizzas_pagination_second_page(): void
+    {
+        for ($i = 0; $i < 15; $i++) {
+            Pizza::create([
+                'name' => "Pizza paginada {$i}",
+                'description' => 'Descripción de prueba',
+                'price' => 10,
+            ]);
+        }
+
+        $this->getJson('/api/pizzas?page=2&per_page=10')
+            ->assertOk()
+            ->assertJsonCount(5, 'data')
+            ->assertJsonPath('meta.current_page', 2)
+            ->assertJsonPath('meta.last_page', 2)
+            ->assertJsonPath('meta.per_page', 10)
+            ->assertJsonPath('meta.total', 15);
+    }
+
+    public function test_list_pizzas_validates_per_page_max(): void
+    {
+        $this->getJson('/api/pizzas?per_page=99')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['per_page']);
     }
 
     public function test_list_pizzas_includes_ingredients(): void
@@ -41,7 +79,7 @@ class PizzaApiTest extends TestCase
             Ingredient::factory()->count(2)->create()->pluck('id')
         );
 
-        $response = $this->getJson('/api/pizzas')
+        $response = $this->getJson('/api/pizzas?per_page=50')
             ->assertOk();
 
         $this->assertCount(2, $response->json('data.0.ingredients'));

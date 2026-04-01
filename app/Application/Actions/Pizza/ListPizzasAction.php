@@ -3,7 +3,7 @@
 namespace App\Application\Actions\Pizza;
 
 use App\Domain\Contracts\PizzaRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 final readonly class ListPizzasAction
 {
@@ -11,8 +11,8 @@ final readonly class ListPizzasAction
         private PizzaRepositoryInterface $repository,
     ) {}
 
-    public function execute(): Collection
+    public function execute(int $perPage, int $page): LengthAwarePaginator
     {
-        return $this->repository->allWithIngredients();
+        return $this->repository->paginateWithIngredients($perPage, $page);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Infrastructure\Repositories;
 use App\Application\DTOs\PizzaData;
 use App\Domain\Contracts\PizzaRepositoryInterface;
 use App\Models\Pizza;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 final class EloquentPizzaRepository implements PizzaRepositoryInterface
@@ -12,6 +13,13 @@ final class EloquentPizzaRepository implements PizzaRepositoryInterface
     public function allWithIngredients(): Collection
     {
         return Pizza::with('ingredients')->orderBy('name')->get();
+    }
+
+    public function paginateWithIngredients(int $perPage, int $page): LengthAwarePaginator
+    {
+        return Pizza::with('ingredients')
+            ->orderBy('name')
+            ->paginate(perPage: $perPage, page: $page);
     }
 
     public function findOrFail(string $id): Pizza

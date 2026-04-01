@@ -19,10 +19,12 @@ class ListPizzasActionTest extends TestCase
         $pizza->ingredients()->attach($ingredients->pluck('id'));
 
         $action = app(ListPizzasAction::class);
-        $result = $action->execute();
+        $result = $action->execute(perPage: 15, page: 1);
 
-        $this->assertCount(1, $result);
-        $this->assertTrue($result->first()->relationLoaded('ingredients'));
-        $this->assertCount(2, $result->first()->ingredients);
+        $this->assertCount(1, $result->items());
+        $first = $result->first();
+        $this->assertNotNull($first);
+        $this->assertTrue($first->relationLoaded('ingredients'));
+        $this->assertCount(2, $first->ingredients);
     }
 }

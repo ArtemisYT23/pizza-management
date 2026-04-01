@@ -8,6 +8,7 @@ use App\Application\Actions\Pizza\GetPizzaAction;
 use App\Application\Actions\Pizza\ListPizzasAction;
 use App\Application\Actions\Pizza\UpdatePizzaAction;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\ListPizzasRequest;
 use App\Http\Requests\Api\StorePizzaRequest;
 use App\Http\Requests\Api\UpdatePizzaRequest;
 use App\Http\Resources\PizzaResource;
@@ -16,9 +17,18 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PizzaController extends Controller
 {
-    public function index(ListPizzasAction $action): AnonymousResourceCollection
-    {
-        return PizzaResource::collection($action->execute());
+    public function index(
+        ListPizzasRequest $request,
+        ListPizzasAction $action,
+    ): AnonymousResourceCollection {
+        $validated = $request->validated();
+
+        return PizzaResource::collection(
+            $action->execute(
+                (int) $validated['per_page'],
+                (int) $validated['page'],
+            ),
+        );
     }
 
     public function show(

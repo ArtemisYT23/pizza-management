@@ -33,6 +33,30 @@ export type OrderDto = {
 export type ApiCollection<T> = { data: T[] };
 export type ApiResource<T> = { data: T };
 
+/** Respuesta paginada de `PizzaResource::collection` (Laravel). */
+export type PaginationLinks = {
+    first: string | null;
+    last: string | null;
+    prev: string | null;
+    next: string | null;
+};
+
+export type PaginationMeta = {
+    current_page: number;
+    from: number | null;
+    last_page: number;
+    path: string;
+    per_page: number;
+    to: number | null;
+    total: number;
+};
+
+export type ApiPaginatedCollection<T> = {
+    data: T[];
+    links: PaginationLinks;
+    meta: PaginationMeta;
+};
+
 export type ValidationErrors = Record<string, string[]>;
 
 export class ApiError extends Error {

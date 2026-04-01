@@ -13,7 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiFetch } from '@/lib/api';
 import { admin } from '@/routes';
-import type { ApiCollection, ApiResource, IngredientDto, PizzaDto } from '@/types/api';
+import type {
+    ApiCollection,
+    ApiPaginatedCollection,
+    ApiResource,
+    IngredientDto,
+    PizzaDto,
+} from '@/types/api';
 import { ApiError } from '@/types/api';
 
 defineOptions({
@@ -88,10 +94,14 @@ async function loadAll() {
 
     try {
         const [pRes, iRes] = await Promise.all([
-            apiFetch<ApiCollection<PizzaDto>>('/pizzas'),
+            apiFetch<ApiPaginatedCollection<PizzaDto>>(
+                '/pizzas?per_page=50&page=1',
+            ),
             apiFetch<ApiCollection<IngredientDto>>('/ingredients'),
         ]);
-        pizzas.value = pRes.data.sort((a, b) => a.name.localeCompare(b.name));
+        pizzas.value = [...pRes.data].sort((a, b) =>
+            a.name.localeCompare(b.name),
+        );
         ingredients.value = iRes.data;
     } catch (e) {
         errorMessage.value =
