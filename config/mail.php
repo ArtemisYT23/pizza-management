@@ -49,6 +49,46 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
         ],
 
+        /*
+        | SendGrid SMTP (https://docs.sendgrid.com/for-developers/sending-email/getting-started-smtp)
+        | Usuario fijo "apikey"; la contraseña es tu API Key del panel de SendGrid.
+        */
+        'sendgrid' => [
+            'transport' => 'smtp',
+            'scheme' => env('MAIL_SENDGRID_SCHEME'),
+            'url' => env('MAIL_SENDGRID_URL'),
+            'host' => env('MAIL_SENDGRID_HOST', 'smtp.sendgrid.net'),
+            'port' => env('MAIL_SENDGRID_PORT', 587),
+            'username' => env('MAIL_SENDGRID_USERNAME', 'apikey'),
+            'password' => env('SENDGRID_API_KEY'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+        ],
+
+        /*
+        | Brevo SMTP (https://help.brevo.com/hc/en-us/articles/209467485)
+        | Usuario y "SMTP key" los obtienes en Brevo → SMTP & API → SMTP.
+        |
+        | Si TLS falla por CN (p. ej. el DNS te lleva a un relay regional), define
+        | MAIL_BREVO_HOST con el hostname del certificado o, en último caso,
+        | MAIL_SMTP_VERIFY_PEER=false (Symfony Mailer / ver changelog Mailer).
+        */
+        'brevo' => [
+            'transport' => 'smtp',
+            'scheme' => env('MAIL_BREVO_SCHEME'),
+            'url' => env('MAIL_BREVO_URL'),
+            'host' => env('MAIL_BREVO_HOST', 'smtp-relay.brevo.com'),
+            'port' => env('MAIL_BREVO_PORT', 587),
+            'username' => env('MAIL_BREVO_LOGIN'),
+            'password' => env('MAIL_BREVO_SMTP_KEY'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            'verify_peer' => filter_var(
+                env('MAIL_SMTP_VERIFY_PEER', 'true'),
+                FILTER_VALIDATE_BOOLEAN,
+            ),
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],

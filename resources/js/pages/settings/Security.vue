@@ -30,7 +30,7 @@ defineOptions({
     layout: {
         breadcrumbs: [
             {
-                title: 'Security settings',
+                title: 'Seguridad',
                 href: edit(),
             },
         ],
@@ -44,15 +44,15 @@ onUnmounted(() => clearTwoFactorAuthData());
 </script>
 
 <template>
-    <Head title="Security settings" />
+    <Head title="Seguridad" />
 
-    <h1 class="sr-only">Security settings</h1>
+    <h1 class="sr-only">Seguridad</h1>
 
     <div class="space-y-6">
         <Heading
             variant="small"
-            title="Update password"
-            description="Ensure your account is using a long, random password to stay secure"
+            title="Actualizar contraseña"
+            description="Usa una contraseña larga y aleatoria para mantener tu cuenta segura"
         />
 
         <Form
@@ -70,37 +70,37 @@ onUnmounted(() => clearTwoFactorAuthData());
             v-slot="{ errors, processing, recentlySuccessful }"
         >
             <div class="grid gap-2">
-                <Label for="current_password">Current password</Label>
+                <Label for="current_password">Contraseña actual</Label>
                 <PasswordInput
                     id="current_password"
                     name="current_password"
                     class="mt-1 block w-full"
                     autocomplete="current-password"
-                    placeholder="Current password"
+                    placeholder="Contraseña actual"
                 />
                 <InputError :message="errors.current_password" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="password">New password</Label>
+                <Label for="password">Nueva contraseña</Label>
                 <PasswordInput
                     id="password"
                     name="password"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
-                    placeholder="New password"
+                    placeholder="Nueva contraseña"
                 />
                 <InputError :message="errors.password" />
             </div>
 
             <div class="grid gap-2">
-                <Label for="password_confirmation">Confirm password</Label>
+                <Label for="password_confirmation">Confirmar contraseña</Label>
                 <PasswordInput
                     id="password_confirmation"
                     name="password_confirmation"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
-                    placeholder="Confirm password"
+                    placeholder="Confirmar contraseña"
                 />
                 <InputError :message="errors.password_confirmation" />
             </div>
@@ -110,7 +110,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                     :disabled="processing"
                     data-test="update-password-button"
                 >
-                    Save password
+                    Guardar contraseña
                 </Button>
 
                 <Transition
@@ -123,7 +123,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                         v-show="recentlySuccessful"
                         class="text-sm text-neutral-600"
                     >
-                        Saved.
+                        Guardado.
                     </p>
                 </Transition>
             </div>
@@ -133,8 +133,8 @@ onUnmounted(() => clearTwoFactorAuthData());
     <div v-if="canManageTwoFactor" class="space-y-6">
         <Heading
             variant="small"
-            title="Two-factor authentication"
-            description="Manage your two-factor authentication settings"
+            title="Autenticación en dos pasos (2FA)"
+            description="Gestiona la verificación en dos pasos de tu cuenta"
         />
 
         <div
@@ -142,14 +142,14 @@ onUnmounted(() => clearTwoFactorAuthData());
             class="flex flex-col items-start justify-start space-y-4"
         >
             <p class="text-sm text-muted-foreground">
-                When you enable two-factor authentication, you will be prompted
-                for a secure pin during login. This pin can be retrieved from a
-                TOTP-supported application on your phone.
+                Al activar la autenticación en dos pasos, al iniciar sesión se te
+                pedirá un código de tu aplicación de autenticación (TOTP) en el
+                móvil.
             </p>
 
             <div>
                 <Button v-if="hasSetupData" @click="showSetupModal = true">
-                    <ShieldCheck />Continue setup
+                    <ShieldCheck />Continuar configuración
                 </Button>
                 <Form
                     v-else
@@ -158,7 +158,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                     #default="{ processing }"
                 >
                     <Button type="submit" :disabled="processing">
-                        Enable 2FA
+                        Activar 2FA
                     </Button>
                 </Form>
             </div>
@@ -166,9 +166,8 @@ onUnmounted(() => clearTwoFactorAuthData());
 
         <div v-else class="flex flex-col items-start justify-start space-y-4">
             <p class="text-sm text-muted-foreground">
-                You will be prompted for a secure, random pin during login,
-                which you can retrieve from the TOTP-supported application on
-                your phone.
+                Al iniciar sesión se te pedirá un código que obtendrás de la
+                aplicación de autenticación en tu teléfono.
             </p>
 
             <div class="relative inline">
@@ -178,7 +177,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                         type="submit"
                         :disabled="processing"
                     >
-                        Disable 2FA
+                        Desactivar 2FA
                     </Button>
                 </Form>
             </div>

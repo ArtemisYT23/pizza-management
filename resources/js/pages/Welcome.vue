@@ -1,6 +1,15 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-import { dashboard, login, register } from '@/routes';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { admin, home, login, register } from '@/routes';
+import orderRoutes from '@/routes/orders';
+
+const page = usePage();
+const isAdminUser = computed(() =>
+    Boolean(
+        (page.props.auth.user as { is_admin?: boolean } | undefined)?.is_admin,
+    ),
+);
 
 withDefaults(
     defineProps<{
@@ -24,26 +33,48 @@ withDefaults(
             class="mb-6 w-full max-w-[335px] text-sm not-has-[nav]:hidden lg:max-w-4xl"
         >
             <nav class="flex items-center justify-end gap-4">
+                <template v-if="!$page.props.auth.user">
+                    <Link
+                        :href="home()"
+                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
+                    >
+                        Carta
+                    </Link>
+                </template>
+                <template v-else-if="!isAdminUser">
+                    <Link
+                        :href="home()"
+                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
+                    >
+                        Carta
+                    </Link>
+                    <Link
+                        :href="orderRoutes.mine()"
+                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
+                    >
+                        Mis pedidos
+                    </Link>
+                </template>
                 <Link
-                    v-if="$page.props.auth.user"
-                    :href="dashboard()"
+                    v-else
+                    :href="admin()"
                     class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                 >
-                    Dashboard
+                    Administración
                 </Link>
-                <template v-else>
+                <template v-if="!$page.props.auth.user">
                     <Link
                         :href="login()"
                         class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
                     >
-                        Log in
+                        Iniciar sesión
                     </Link>
                     <Link
                         v-if="canRegister"
                         :href="register()"
                         class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
                     >
-                        Register
+                        Registrarse
                     </Link>
                 </template>
             </nav>
