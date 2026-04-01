@@ -23,6 +23,7 @@ use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
 use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
 use Laravel\Fortify\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Mailer\Transport;
 
 class AppServiceProvider extends ServiceProvider
@@ -60,8 +61,15 @@ class AppServiceProvider extends ServiceProvider
                 );
             }
 
+            $client = HttpClient::create([
+                'timeout' => 30,
+                'max_duration' => 60,
+            ]);
+
             return Transport::fromDsn(
                 'brevo+api://'.rawurlencode($key).'@default',
+                null,
+                $client,
             );
         });
     }
