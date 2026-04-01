@@ -15,11 +15,11 @@ class OrderResource extends JsonResource
         return [
             'id' => $this->id,
             'ordered_at' => $this->ordered_at,
-            'user' => [
-                'id' => $this->whenLoaded('user', fn () => $this->user->id),
-                'name' => $this->whenLoaded('user', fn () => $this->user->name),
-                'email' => $this->whenLoaded('user', fn () => $this->user->email),
-            ],
+            'user' => $this->whenLoaded('user', fn (): array => [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
+            ]),
             'pizza' => new PizzaResource($this->whenLoaded('pizza')),
             'created_at' => $this->created_at,
         ];

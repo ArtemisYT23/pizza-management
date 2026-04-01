@@ -9,9 +9,14 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Test User',
+        User::factory()->admin()->create([
+            'name' => 'Admin',
             'email' => 'test@example.com',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Cliente demo',
+            'email' => 'cliente@example.com',
         ]);
 
         $this->call(PizzaSeeder::class);

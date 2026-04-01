@@ -6,6 +6,10 @@ use App\Domain\Contracts\IngredientRepositoryInterface;
 use App\Domain\Contracts\OrderRepositoryInterface;
 use App\Domain\Contracts\PizzaRepositoryInterface;
 use App\Events\OrderPlaced;
+use App\Http\Responses\Fortify\LoginResponse;
+use App\Http\Responses\Fortify\RegisterResponse;
+use App\Http\Responses\Fortify\TwoFactorLoginResponse;
+use App\Http\Responses\Fortify\VerifyEmailResponse;
 use App\Infrastructure\Repositories\EloquentIngredientRepository;
 use App\Infrastructure\Repositories\EloquentOrderRepository;
 use App\Infrastructure\Repositories\EloquentPizzaRepository;
@@ -16,6 +20,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
+use Laravel\Fortify\Contracts\RegisterResponse as RegisterResponseContract;
+use Laravel\Fortify\Contracts\TwoFactorLoginResponse as TwoFactorLoginResponseContract;
+use Laravel\Fortify\Contracts\VerifyEmailResponse as VerifyEmailResponseContract;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,7 +38,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function register(): void
     {
-        //
+        $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
+        $this->app->singleton(TwoFactorLoginResponseContract::class, TwoFactorLoginResponse::class);
+        $this->app->singleton(RegisterResponseContract::class, RegisterResponse::class);
+        $this->app->singleton(VerifyEmailResponseContract::class, VerifyEmailResponse::class);
     }
 
     /**
