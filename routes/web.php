@@ -3,14 +3,22 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 
-Route::inertia('/', 'Welcome', [
+Route::middleware('redirect_admin_customer')->group(function () {
+    Route::inertia('/', 'Menu')->name('home');
+});
+
+Route::redirect('/menu', '/');
+
+Route::inertia('/welcome', 'Welcome', [
     'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+])->name('welcome');
 
-Route::inertia('menu', 'Menu')->name('menu');
+Route::middleware(['auth', 'verified', 'redirect_admin_customer'])->group(function () {
+    Route::inertia('my-orders', 'Orders/Mine')->name('orders.mine');
+});
 
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
+    Route::inertia('admin', 'Admin/Dashboard')->name('admin');
     Route::inertia('admin/ingredients', 'Admin/Ingredients')->name('admin.ingredients');
     Route::inertia('admin/pizzas', 'Admin/Pizzas')->name('admin.pizzas');
     Route::inertia('admin/orders', 'Admin/Orders')->name('admin.orders');

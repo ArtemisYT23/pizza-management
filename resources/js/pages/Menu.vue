@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
+import MenuPageShell from '@/components/MenuPageShell.vue';
+import PizzaMenuLoader from '@/components/PizzaMenuLoader.vue';
 import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
 import { apiFetch } from '@/lib/api';
-import { dashboard, home, login, register } from '@/routes';
+import { home, login } from '@/routes';
+import type { BreadcrumbItem } from '@/types';
 import type { ApiCollection, ApiResource, PizzaDto } from '@/types/api';
 import { ApiError } from '@/types/api';
 
@@ -22,6 +26,13 @@ const orderingId = ref<string | null>(null);
 const orderSuccess = ref<string | null>(null);
 
 const isAuthenticated = () => !!page.props.auth?.user;
+
+const cartaBreadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Carta',
+        href: home(),
+    },
+];
 
 async function loadPizzas() {
     loading.value = true;
@@ -70,131 +81,129 @@ onMounted(() => {
 <template>
     <Head title="Carta de pizzas" />
 
-    <div
-        class="min-h-screen bg-background text-foreground"
+    <MenuPageShell
+        :authenticated="isAuthenticated()"
+        :breadcrumbs="isAuthenticated() ? cartaBreadcrumbs : undefined"
     >
-        <header
-            class="border-b border-border bg-card/80 backdrop-blur-sm"
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold tracking-tight">
+                Nuestra carta
+            </h1>
+            <p class="mt-2 text-muted-foreground">
+                Pizzas con ingredientes frescos. Los pedidos solo están
+                disponibles para usuarios registrados.
+            </p>
+        </div>
+
+        <p
+            v-if="orderSuccess"
+            class="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400"
         >
-            <div
-                class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4"
+            {{ orderSuccess }}
+        </p>
+        <p
+            v-if="errorMessage"
+            class="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+            {{ errorMessage }}
+        </p>
+
+        <PizzaMenuLoader v-if="loading" />
+
+        <div
+            v-else
+            class="grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        >
+            <Card
+                v-for="pizza in pizzas"
+                :key="pizza.id"
+                class="flex h-full flex-col overflow-hidden shadow-sm transition-shadow duration-200 hover:shadow-md"
             >
-                <Link
-                    :href="home()"
-                    class="text-lg font-semibold tracking-tight"
+                <CardHeader
+                    class="shrink-0 space-y-3 border-b border-border/50 pb-4"
                 >
-                    {{ $page.props.name }}
-                </Link>
-                <nav class="flex flex-wrap items-center gap-2">
-                    <Button variant="ghost" size="sm" as-child>
-                        <Link :href="home()">Inicio</Link>
-                    </Button>
-                    <template v-if="isAuthenticated()">
-                        <Button size="sm" as-child>
-                            <Link :href="dashboard()">Panel</Link>
-                        </Button>
-                    </template>
-                    <template v-else>
-                        <Button variant="outline" size="sm" as-child>
-                            <Link :href="login()">Iniciar sesión</Link>
-                        </Button>
-                        <Button size="sm" as-child>
-                            <Link :href="register()">Registrarse</Link>
-                        </Button>
-                    </template>
-                </nav>
-            </div>
-        </header>
-
-        <main class="mx-auto max-w-6xl px-4 py-8">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold tracking-tight">
-                    Nuestra carta
-                </h1>
-                <p class="mt-2 text-muted-foreground">
-                    Pizzas con ingredientes frescos. Los pedidos solo están
-                    disponibles para usuarios registrados.
-                </p>
-            </div>
-
-            <p
-                v-if="orderSuccess"
-                class="mb-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400"
-            >
-                {{ orderSuccess }}
-            </p>
-            <p
-                v-if="errorMessage"
-                class="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-            >
-                {{ errorMessage }}
-            </p>
-
-            <div
-                v-if="loading"
-                class="text-muted-foreground"
-            >
-                Cargando pizzas…
-            </div>
-
-            <div
-                v-else
-                class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-            >
-                <Card
-                    v-for="pizza in pizzas"
-                    :key="pizza.id"
-                >
-                    <CardHeader>
-                        <CardTitle>{{ pizza.name }}</CardTitle>
-                        <CardDescription v-if="pizza.description">
+                    <CardTitle
+                        class="line-clamp-2 text-lg font-semibold leading-snug tracking-tight"
+                    >
+                        {{ pizza.name }}
+                    </CardTitle>
+                    <div class="min-h-[4.25rem]">
+                        <CardDescription
+                            v-if="pizza.description"
+                            class="line-clamp-3 leading-relaxed"
+                        >
                             {{ pizza.description }}
                         </CardDescription>
-                    </CardHeader>
-                    <CardContent class="flex flex-col gap-4">
-                        <p class="text-2xl font-semibold text-primary">
+                    </div>
+                </CardHeader>
+
+                <CardContent
+                    class="flex min-h-0 flex-1 flex-col gap-5 pt-5"
+                >
+                    <div class="shrink-0">
+                        <p
+                            class="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                        >
+                            Precio
+                        </p>
+                        <p
+                            class="text-2xl font-bold tabular-nums tracking-tight text-primary"
+                        >
                             ${{ pizza.price }}
                         </p>
-                        <div>
-                            <p class="mb-2 text-xs font-medium uppercase text-muted-foreground">
-                                Ingredientes
-                            </p>
-                            <ul class="flex flex-wrap gap-1.5">
-                                <li
-                                    v-for="ing in pizza.ingredients"
-                                    :key="ing.id"
-                                    class="rounded-md bg-muted px-2 py-0.5 text-xs"
-                                >
-                                    {{ ing.name }}
-                                </li>
-                            </ul>
-                        </div>
-                        <Button
-                            v-if="isAuthenticated()"
-                            :disabled="orderingId === pizza.id"
-                            @click="placeOrder(pizza)"
-                        >
-                            {{
-                                orderingId === pizza.id
-                                    ? 'Enviando…'
-                                    : 'Pedir esta pizza'
-                            }}
-                        </Button>
+                    </div>
+
+                    <div class="flex min-h-0 flex-1 flex-col">
                         <p
-                            v-else
-                            class="text-sm text-muted-foreground"
+                            class="mb-2 shrink-0 text-xs font-medium uppercase tracking-wide text-muted-foreground"
                         >
-                            <Link
-                                :href="login()"
-                                class="font-medium text-primary underline-offset-4 hover:underline"
-                            >
-                                Inicia sesión
-                            </Link>
-                            para realizar un pedido.
+                            Ingredientes
                         </p>
-                    </CardContent>
-                </Card>
-            </div>
-        </main>
-    </div>
+                        <ul
+                            class="flex h-[7.5rem] flex-wrap content-start gap-1.5 overflow-y-auto overscroll-contain rounded-lg border border-border/50 bg-muted/30 p-2.5 dark:bg-muted/20"
+                        >
+                            <li
+                                v-for="ing in pizza.ingredients"
+                                :key="ing.id"
+                                class="inline-flex max-w-full items-center rounded-md border border-border/60 bg-background/80 px-2.5 py-1 text-xs font-medium leading-none shadow-sm"
+                            >
+                                <span class="line-clamp-2 break-words">{{
+                                    ing.name
+                                }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </CardContent>
+
+                <CardFooter
+                    class="mt-auto shrink-0 flex-col gap-0 border-t border-border/50 bg-muted/20 pt-5 dark:bg-muted/10"
+                >
+                    <Button
+                        v-if="isAuthenticated()"
+                        class="w-full"
+                        :disabled="orderingId === pizza.id"
+                        @click="placeOrder(pizza)"
+                    >
+                        {{
+                            orderingId === pizza.id
+                                ? 'Enviando…'
+                                : 'Pedir esta pizza'
+                        }}
+                    </Button>
+                    <p
+                        v-else
+                        class="text-center text-sm leading-relaxed text-muted-foreground"
+                    >
+                        <Link
+                            :href="login()"
+                            class="font-medium text-primary underline-offset-4 hover:underline"
+                        >
+                            Inicia sesión
+                        </Link>
+                        para realizar un pedido.
+                    </p>
+                </CardFooter>
+            </Card>
+        </div>
+    </MenuPageShell>
 </template>

@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next';
+import {
+    BookOpen,
+    ChefHat,
+    Flame,
+    Folder,
+    LayoutGrid,
+    Menu,
+    Pizza,
+    Receipt,
+    Search,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -35,7 +45,9 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials } from '@/composables/useInitials';
 import { toUrl } from '@/lib/utils';
-import { dashboard } from '@/routes';
+import adminPages from '@/routes/admin';
+import { admin, home } from '@/routes';
+import orderRoutes from '@/routes/orders';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -53,13 +65,60 @@ const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
 const activeItemStyles =
     'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
+const isAdminUser = computed(() =>
+    Boolean(
+        (auth.value.user as { is_admin?: boolean } | undefined)?.is_admin,
+    ),
+);
+
+const logoHref = computed(() =>
+    isAdminUser.value ? admin() : home(),
+);
+
+const mainNavItems = computed<NavItem[]>(() => {
+    if (isAdminUser.value) {
+        return [
+            {
+                title: 'Administración',
+                href: admin(),
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Ingredientes',
+                href: adminPages.ingredients(),
+                icon: ChefHat,
+            },
+            {
+                title: 'Pizzas',
+                href: adminPages.pizzas(),
+                icon: Flame,
+            },
+            {
+                title: 'Todos los pedidos',
+                href: adminPages.orders(),
+                icon: Receipt,
+            },
+        ];
+    }
+
+    const items: NavItem[] = [
+        {
+            title: 'Carta',
+            href: home(),
+            icon: Pizza,
+        },
+    ];
+
+    if (auth.value.user) {
+        items.push({
+            title: 'Mis pedidos',
+            href: orderRoutes.mine(),
+            icon: Receipt,
+        });
+    }
+
+    return items;
+});
 
 const rightNavItems: NavItem[] = [
     {
@@ -146,7 +205,7 @@ const rightNavItems: NavItem[] = [
                     </Sheet>
                 </div>
 
-                <Link :href="dashboard()" class="flex items-center gap-x-2">
+                <Link :href="logoHref" class="flex items-center gap-x-2">
                     <AppLogo />
                 </Link>
 

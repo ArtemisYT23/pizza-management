@@ -10,15 +10,15 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { apiFetch } from '@/lib/api';
-import { admin } from '@/routes';
+import { home } from '@/routes';
 import type { ApiCollection, OrderDto } from '@/types/api';
 import { ApiError } from '@/types/api';
 
 defineOptions({
     layout: {
         breadcrumbs: [
-            { title: 'Administración', href: admin() },
-            { title: 'Pedidos', href: '/admin/orders' },
+            { title: 'Carta', href: home() },
+            { title: 'Mis pedidos', href: '/my-orders' },
         ],
     },
 });
@@ -54,21 +54,21 @@ onMounted(load);
 </script>
 
 <template>
-    <Head title="Pedidos" />
+    <Head title="Mis pedidos" />
 
     <div class="flex flex-col gap-6 p-4">
         <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-semibold tracking-tight">
-                    Pedidos
+                    Mis pedidos
                 </h1>
                 <p class="text-sm text-muted-foreground">
-                    Listado de pedidos (API).
+                    Pedidos asociados a tu cuenta.
                 </p>
             </div>
             <div class="flex gap-2">
                 <Button variant="outline" as-child>
-                    <Link :href="admin()">Volver al panel</Link>
+                    <Link :href="home()">Volver a la carta</Link>
                 </Button>
                 <Button variant="secondary" @click="load">
                     Actualizar
@@ -85,9 +85,9 @@ onMounted(load);
 
         <Card>
             <CardHeader>
-                <CardTitle>Todos los pedidos</CardTitle>
+                <CardTitle>Tus pedidos</CardTitle>
                 <CardDescription>
-                    Usuario, pizza y fecha del pedido.
+                    Pizza y fecha de cada pedido.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -101,7 +101,7 @@ onMounted(load);
                     v-else-if="orders.length === 0"
                     class="text-muted-foreground"
                 >
-                    Aún no hay pedidos.
+                    Aún no has realizado pedidos.
                 </div>
                 <div
                     v-else
@@ -112,9 +112,6 @@ onMounted(load);
                             <tr class="border-b border-border">
                                 <th class="pb-2 pr-4 font-medium">
                                     Fecha
-                                </th>
-                                <th class="pb-2 pr-4 font-medium">
-                                    Cliente
                                 </th>
                                 <th class="pb-2 pr-4 font-medium">
                                     Pizza
@@ -132,14 +129,6 @@ onMounted(load);
                             >
                                 <td class="py-3 pr-4 align-top text-muted-foreground">
                                     {{ formatDate(o.ordered_at) }}
-                                </td>
-                                <td class="py-3 pr-4 align-top">
-                                    <div class="font-medium">
-                                        {{ o.user?.name ?? '—' }}
-                                    </div>
-                                    <div class="text-xs text-muted-foreground">
-                                        {{ o.user?.email ?? '' }}
-                                    </div>
                                 </td>
                                 <td class="py-3 pr-4 align-top">
                                     {{ o.pizza?.name ?? '—' }}

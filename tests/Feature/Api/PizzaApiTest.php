@@ -14,10 +14,13 @@ class PizzaApiTest extends TestCase
 
     private User $user;
 
+    private User $admin;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->user = User::factory()->create();
+        $this->admin = User::factory()->admin()->create();
     }
 
     // --- Public endpoints ---
@@ -70,11 +73,22 @@ class PizzaApiTest extends TestCase
         $this->postJson('/api/pizzas', [])->assertUnauthorized();
     }
 
+    public function test_non_admin_cannot_create_pizza(): void
+    {
+        $this->actingAs($this->user)
+            ->postJson('/api/pizzas', [
+                'name' => 'X',
+                'price' => 10,
+                'ingredient_ids' => [],
+            ])
+            ->assertForbidden();
+    }
+
     public function test_can_create_pizza_with_ingredients(): void
     {
         $ingredients = Ingredient::factory()->count(3)->create();
 
-        $this->actingAs($this->user)
+        $this->actingAs($this->admin)
             ->postJson('/api/pizzas', [
                 'name' => 'Margherita',
                 'description' => 'Clásica',
@@ -88,7 +102,7 @@ class PizzaApiTest extends TestCase
 
     public function test_create_validates_required_fields(): void
     {
-        $this->actingAs($this->user)
+        $this->actingAs($this->admin)
             ->postJson('/api/pizzas', [])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['name', 'price']);
@@ -96,7 +110,7 @@ class PizzaApiTest extends TestCase
 
     public function test_create_validates_ingredient_ids_exist(): void
     {
-        $this->actingAs($this->user)
+        $this->actingAs($this->admin)
             ->postJson('/api/pizzas', [
                 'name' => 'Test',
                 'price' => 10,
@@ -111,7 +125,7 @@ class PizzaApiTest extends TestCase
         $pizza = Pizza::factory()->create(['name' => 'Old']);
         $newIngredients = Ingredient::factory()->count(2)->create();
 
-        $this->actingAs($this->user)
+        $this->actingAs($this->admin)
             ->putJson("/api/pizzas/{$pizza->id}", [
                 'name' => 'Updated',
                 'price' => 15.99,
@@ -126,7 +140,7 @@ class PizzaApiTest extends TestCase
     {
         $pizza = Pizza::factory()->create();
 
-        $this->actingAs($this->user)
+        $this->actingAs($this->admin)
             ->deleteJson("/api/pizzas/{$pizza->id}")
             ->assertNoContent();
 

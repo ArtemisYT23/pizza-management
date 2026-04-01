@@ -20,10 +20,11 @@ Route::apiResource('pizzas', PizzaController::class)->only(['index', 'show']);
 */
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard CRUDs
+    Route::get('orders', [OrderController::class, 'index']);
+    Route::post('orders', [OrderController::class, 'store']);
+});
+
+Route::middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::apiResource('ingredients', IngredientController::class)->except(['show']);
     Route::apiResource('pizzas', PizzaController::class)->only(['store', 'update', 'destroy']);
-
-    // Orders
-    Route::apiResource('orders', OrderController::class)->only(['index', 'store']);
 });

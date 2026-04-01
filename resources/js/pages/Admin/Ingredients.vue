@@ -12,14 +12,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiFetch } from '@/lib/api';
-import { dashboard } from '@/routes';
+import { admin } from '@/routes';
 import type { ApiCollection, ApiResource, IngredientDto } from '@/types/api';
 import { ApiError } from '@/types/api';
 
 defineOptions({
     layout: {
         breadcrumbs: [
-            { title: 'Dashboard', href: dashboard() },
+            { title: 'Administración', href: admin() },
             { title: 'Ingredientes', href: '/admin/ingredients' },
         ],
     },
@@ -147,7 +147,7 @@ onMounted(load);
                 </p>
             </div>
             <Button variant="outline" as-child>
-                <Link :href="dashboard()">Volver al panel</Link>
+                    <Link :href="admin()">Volver al panel</Link>
             </Button>
         </div>
 

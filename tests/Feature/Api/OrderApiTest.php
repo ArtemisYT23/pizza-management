@@ -35,21 +35,50 @@ class OrderApiTest extends TestCase
         $this->postJson('/api/orders', [])->assertUnauthorized();
     }
 
-    public function test_can_list_orders(): void
+    public function test_admin_can_list_all_orders(): void
     {
         Order::factory()->count(3)->create();
 
-        $this->actingAs($this->user)
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
             ->getJson('/api/orders')
             ->assertOk()
             ->assertJsonCount(3, 'data');
     }
 
-    public function test_orders_include_user_and_pizza(): void
+    public function test_user_only_lists_own_orders(): void
+    {
+        $other = User::factory()->create();
+        Order::factory()->count(2)->create(['user_id' => $this->user->id]);
+        Order::factory()->create(['user_id' => $other->id]);
+
+        $this->actingAs($this->user)
+            ->getJson('/api/orders')
+            ->assertOk()
+            ->assertJsonCount(2, 'data');
+    }
+
+    public function test_user_orders_include_pizza(): void
     {
         Order::factory()->create(['user_id' => $this->user->id]);
 
         $response = $this->actingAs($this->user)
+            ->getJson('/api/orders')
+            ->assertOk();
+
+        $order = $response->json('data.0');
+        $this->assertArrayHasKey('pizza', $order);
+        $this->assertArrayNotHasKey('user', $order);
+    }
+
+    public function test_admin_orders_include_user_and_pizza(): void
+    {
+        Order::factory()->create(['user_id' => $this->user->id]);
+
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin)
             ->getJson('/api/orders')
             ->assertOk();
 
