@@ -19,10 +19,6 @@ Gracias por tu pedido. Aquí tienes el resumen:
 
 **Fecha del pedido:** {{ $order->ordered_at->format('d/m/Y H:i') }}
 
-<x-mail::button :url="config('app.url')">
-Ir a {{ config('app.name') }}
-</x-mail::button>
-
 Saludos,<br>
 {{ config('app.name') }}
 </x-mail::message>

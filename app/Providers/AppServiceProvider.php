@@ -5,7 +5,6 @@ namespace App\Providers;
 use App\Domain\Contracts\IngredientRepositoryInterface;
 use App\Domain\Contracts\OrderRepositoryInterface;
 use App\Domain\Contracts\PizzaRepositoryInterface;
-use App\Events\OrderPlaced;
 use App\Http\Responses\Fortify\LoginResponse;
 use App\Http\Responses\Fortify\RegisterResponse;
 use App\Http\Responses\Fortify\TwoFactorLoginResponse;
@@ -13,11 +12,9 @@ use App\Http\Responses\Fortify\VerifyEmailResponse;
 use App\Infrastructure\Repositories\EloquentIngredientRepository;
 use App\Infrastructure\Repositories\EloquentOrderRepository;
 use App\Infrastructure\Repositories\EloquentPizzaRepository;
-use App\Listeners\DispatchOrderConfirmationEmail;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
@@ -50,8 +47,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
-
-        Event::listen(OrderPlaced::class, DispatchOrderConfirmationEmail::class);
     }
 
     /**

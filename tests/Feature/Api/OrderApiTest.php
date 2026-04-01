@@ -127,6 +127,7 @@ class OrderApiTest extends TestCase
             ->postJson('/api/orders', ['pizza_id' => $pizza->id])
             ->assertCreated();
 
+        Queue::assertPushed(SendOrderConfirmationEmailJob::class, 1);
         Queue::assertPushed(SendOrderConfirmationEmailJob::class, function (SendOrderConfirmationEmailJob $job) use ($user) {
             return Order::where('id', $job->orderId)->where('user_id', $user->id)->exists();
         });
