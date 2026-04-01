@@ -1,19 +1,20 @@
-[phases.setup]
-nixPkgs = ["...", "nodejs_22"]
+# Una sola versión de Node: no mezclar "..." + nodejs_22 con el node por defecto del provider (causa colisión npx 18 vs 22).
+[variables]
+NIXPACKS_NODE_VERSION = "22"
 
 [phases.install]
 cmds = [
     "mkdir -p /etc/nginx/sites-enabled",
     "composer install --no-dev --optimize-autoloader",
-    "npm ci"
+    "npm ci",
 ]
 
 [phases.build]
 cmds = [
     "npm run build",
     "php artisan event:cache",
-    "php artisan view:cache"
+    "php artisan view:cache",
 ]
 
 [start]
-cmd = "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+cmd = "php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
